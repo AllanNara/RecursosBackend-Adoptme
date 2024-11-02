@@ -6,15 +6,17 @@ import mongoose from "mongoose";
 import path from "path";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express"
-
+import dotenv from "dotenv";
 import adoptionsRouter from "./routes/adoption.router.js";
 import petsRouter from "./routes/pets.router.js";
 import sessionsRouter from "./routes/sessions.router.js";
 import usersRouter from "./routes/users.router.js";
 import __dirname from "./utils/index.js";
 
+dotenv.config();
 const PORT = process.env.PORT || 8080;
-const URI = `mongodb://127.0.0.1:27017/adoptme`;
+const URI = process.env.MONGO_URI || `mongodb://127.0.0.1:27017/adoptme`;
+
 const app = express();
 const specs = swaggerJSDoc({
   swaggerDefinition: {
@@ -45,3 +47,4 @@ mongoose.connection.on("connected", () => {
     console.log(`Listening on ${PORT}`
     )});
 });
+
