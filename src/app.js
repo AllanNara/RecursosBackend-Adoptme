@@ -14,6 +14,8 @@ import usersRouter from "./routes/users.router.js";
 import __dirname from "./utils/index.js";
 
 dotenv.config();
+const ENVIRONMENT = process.env.NODE_ENV;
+console.log({ ENVIRONMENT })
 const PORT = process.env.PORT || 8080;
 const URI = process.env.MONGO_URI || `mongodb://127.0.0.1:27017/adoptme`;
 
