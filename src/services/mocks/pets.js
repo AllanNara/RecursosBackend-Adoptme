@@ -4,7 +4,7 @@ export default function generateMockPets(length = 10) {
     return Array.from({ length }, () => fakePet())
 }
 
-const fakePet = () => {
+export const fakePet = () => {
     let specie = faker.animal.type();
     return {
         name: faker.animal.petName(),

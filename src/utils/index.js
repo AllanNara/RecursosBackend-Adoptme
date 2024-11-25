@@ -8,7 +8,7 @@ export const createHash = async(password) =>{
     return hash
 }
 
-export const passwordValidation = async(user,password) => bcrypt.compare(password,user.password);
+export const passwordValidation = async(user,password) => await bcrypt.compare(password,user.password);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

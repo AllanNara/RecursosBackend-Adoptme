@@ -10,7 +10,7 @@ export default async function generateMockUsers(length = 10) {
     return users
 }
 
-const fakeUser = async () => {
+export const fakeUser = async () => {
     return {
         first_name: faker.person.firstName(),
         last_name: faker.person.lastName(),

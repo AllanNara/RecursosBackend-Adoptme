@@ -6,7 +6,7 @@ import path from "path";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express"
 import compression from "compression";
-import config from "./config/index.js";
+import config from "../config/index.js";
 import adoptionsRouter from "./routes/adoption.router.js";
 import petsRouter from "./routes/pets.router.js";
 import sessionsRouter from "./routes/sessions.router.js";
@@ -28,6 +28,7 @@ const specs = swaggerJSDoc({
   apis: [path.join(__dirname, "../docs/**/*.yaml")]
 });
 
+mongoose.set('strictQuery', false);
 mongoose.connect(config.MONGO_URI);
 app.use(compression());
 app.use(express.json());
