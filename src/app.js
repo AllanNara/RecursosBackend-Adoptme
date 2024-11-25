@@ -39,7 +39,7 @@ app.use((req, res, next) => {
 });
 
 // LOGGER TEST
-app.get("/loggers", (req, res) => {
+app.get("/loggerTest", (req, res) => {
   logger.fatal("Logger testing")
   logger.error("Logger testing")
   logger.warning("Logger testing")
@@ -60,8 +60,12 @@ app.use(errorHandle);
 mongoose.connection.on("connected", () => {
   app.listen(config.PORT, () => {
     displayRoutes(app);
-    console.log("Mongo Database connected");
-    console.log(`Listening on ${config.PORT}`)
+    logger.info("Mongo Database connected");
+    logger.info(`Listening on ${config.PORT}`)
     });
+});
+
+mongoose.connection.on("error", (error) => {
+  logger.fatal(error);
 });
 

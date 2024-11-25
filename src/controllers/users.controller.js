@@ -9,7 +9,7 @@ const getAllUsers = async(req,res)=>{
     res.send({status:"success",payload:users})
 }
 
-const getUser = async(req,res)=> {
+const getUser = async(req,res,next)=> {
     try {
         const userId = req.params.uid;
         if(!userId || mongoose.Types.ObjectId.isValid(userId)) {
@@ -35,7 +35,7 @@ const getUser = async(req,res)=> {
     }
 }
 
-const updateUser =async(req,res)=>{
+const updateUser =async(req,res,next)=>{
     try {
         const updateBody = req.body;
         const userId = req.params.uid;
@@ -63,7 +63,7 @@ const updateUser =async(req,res)=>{
     }
 }
 
-const deleteUser = async(req,res) =>{
+const deleteUser = async(req,res,next) =>{
     try {
         const userId = req.params.uid;
         if(!userId || mongoose.Types.ObjectId.isValid(userId)) {

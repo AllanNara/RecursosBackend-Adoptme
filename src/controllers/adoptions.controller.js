@@ -1,6 +1,6 @@
 import CustomError from "../services/errors/CustomError.js";
 import EErrors from "../services/errors/enums.js";
-import { resourceNotFoundErrorInfo } from "../services/errors/info.js";
+import { resourceNotFoundErrorInfo, validateIdErrorInfo } from "../services/errors/info.js";
 import { adoptionsService, petsService, usersService } from "../services/index.js"
 import mongoose from "mongoose";
 
@@ -11,24 +11,28 @@ const getAllAdoptions = async(req,res)=>{
 
 const getAdoption = async(req,res)=>{
     const adoptionId = req.params.aid;
-    if(!adoptionId || mongoose.Types.ObjectId.isValid(adoptionId)) {
-       CustomError.createError({
-           name: "Adoption ID error",
-           cause: validateIdErrorInfo(adoptionId),
-           message: "Param UID is not valid",
-           code: EErrors.INVALID_PARAM
-       })
-    }   
-    const adoption = await adoptionsService.getBy({_id:adoptionId})
-    if(!adoption) {
-        CustomError.createError({
-            name: "Resource not found",
-            cause: resourceNotFoundErrorInfo("Adoption"),
-            message: "Adoption not found",
-            code: EErrors.RESOURCE_NOT_FOUND
-        })
+    try {
+        if(!adoptionId || mongoose.Types.ObjectId.isValid(adoptionId)) {
+           CustomError.createError({
+               name: "Adoption ID error",
+               cause: validateIdErrorInfo(adoptionId),
+               message: "Param UID is not valid",
+               code: EErrors.INVALID_PARAM
+           })
+        }   
+        const adoption = await adoptionsService.getBy({_id:adoptionId})
+        if(!adoption) {
+            CustomError.createError({
+                name: "Resource not found",
+                cause: resourceNotFoundErrorInfo("Adoption"),
+                message: "Adoption not found",
+                code: EErrors.RESOURCE_NOT_FOUND
+            })
+        }
+        res.send({status:"success",payload:adoption})
+    } catch (error) {
+        next(error)   
     }
-    res.send({status:"success",payload:adoption})
 }
 
 const createAdoption = async(req,res)=>{
