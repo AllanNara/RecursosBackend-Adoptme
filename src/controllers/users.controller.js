@@ -12,7 +12,7 @@ const getAllUsers = async(req,res)=>{
 const getUser = async(req,res,next)=> {
     try {
         const userId = req.params.uid;
-        if(!userId || mongoose.Types.ObjectId.isValid(userId)) {
+        if(!userId || !mongoose.Types.ObjectId.isValid(userId)) {
             CustomError.createError({
                 name: "User ID error",
                 cause: validateIdErrorInfo(userId),
@@ -39,7 +39,7 @@ const updateUser =async(req,res,next)=>{
     try {
         const updateBody = req.body;
         const userId = req.params.uid;
-        if(!userId || mongoose.Types.ObjectId.isValid(userId)) {
+        if(!userId || !mongoose.Types.ObjectId.isValid(userId)) {
            CustomError.createError({
                name: "User ID error",
                cause: validateIdErrorInfo(userId),
@@ -66,7 +66,7 @@ const updateUser =async(req,res,next)=>{
 const deleteUser = async(req,res,next) =>{
     try {
         const userId = req.params.uid;
-        if(!userId || mongoose.Types.ObjectId.isValid(userId)) {
+        if(!userId || !mongoose.Types.ObjectId.isValid(userId)) {
            CustomError.createError({
                name: "User ID error",
                cause: validateIdErrorInfo(userId),

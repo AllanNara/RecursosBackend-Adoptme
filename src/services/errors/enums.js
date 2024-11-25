@@ -4,7 +4,9 @@ const EErrors = {
     DATABASE_ERROR: 3,
     INVALID_PARAM: 4,
     RESOURCE_NOT_FOUND: 5,
-    BAD_REQUEST: 6
+    BAD_REQUEST: 6,
+    CONFLICT: 7,
+    UNAUTHORIZED: 8
 }
 
 export default EErrors

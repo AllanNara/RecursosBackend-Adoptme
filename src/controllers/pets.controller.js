@@ -1,3 +1,4 @@
+import path from "path";
 import PetDTO from "../dto/Pet.dto.js";
 import { petsService } from "../services/index.js"
 import __dirname from "../utils/index.js";
@@ -55,14 +56,14 @@ const createPetWithImage = async(req,res,next) =>{
             code: EErrors.INVALID_TYPES_ERROR
           });
         }
-        logger(file);
+        logger.debug(file);
         const pet = PetDTO.getPetInputFrom({
             name,
             specie,
             birthDate,
-            image:`${__dirname}/../public/img/${file.filename}`
+            image: path.join(`${__dirname}`,`/../public/img/${file.filename}`)
         });
-        logger(pet);
+        logger.debug(pet);
         const result = await petsService.create(pet);
         res.send({status:"success",payload:result})
     } catch (error) {

@@ -1,6 +1,8 @@
 import generateMockUsers from "../services/mocks/users.js";
 import generateMockPets from "../services/mocks/pets.js";
 import { petsService, usersService } from "../services/index.js";
+import petModel from "../dao/models/Pet.js";
+import userModel from "../dao/models/User.js";
 
 const mockingPets = (req, res, next) => {
     const quantity = parseInt(req.params.quantity);
@@ -36,8 +38,19 @@ const generateDataMock = async (req, res, next) => {
     }
 };
 
+const deleteAllData = async (req, res, next) => {
+    try {
+        await petModel.deleteMany({});
+        await userModel.deleteMany({});
+        res.send({ status: "success", message: "Data Deleted" });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export default {
     mockingPets,
     mockingUsers,
-    generateDataMock
+    generateDataMock,
+    deleteAllData
 }

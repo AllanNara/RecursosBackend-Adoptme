@@ -9,14 +9,14 @@ const getAllAdoptions = async(req,res)=>{
     res.send({status:"success",payload:result})
 }
 
-const getAdoption = async(req,res)=>{
+const getAdoption = async(req,res,next)=>{
     const adoptionId = req.params.aid;
     try {
-        if(!adoptionId || mongoose.Types.ObjectId.isValid(adoptionId)) {
+        if(!adoptionId || !mongoose.Types.ObjectId.isValid(adoptionId)) {
            CustomError.createError({
                name: "Adoption ID error",
                cause: validateIdErrorInfo(adoptionId),
-               message: "Param UID is not valid",
+               message: "Param AID is not valid",
                code: EErrors.INVALID_PARAM
            })
         }   
@@ -35,9 +35,17 @@ const getAdoption = async(req,res)=>{
     }
 }
 
-const createAdoption = async(req,res)=>{
+const createAdoption = async(req,res,next)=>{
     const {uid,pid} = req.params;
     try {
+        if(!mongoose.Types.ObjectId.isValid(uid) || !mongoose.Types.ObjectId.isValid(pid)) {
+           CustomError.createError({
+               name: "Adoption ID error",
+               cause: validateIdErrorInfo(`uid:${uid} pid:${pid}`),
+               message: "Param UID or PID is not valid",
+               code: EErrors.INVALID_PARAM
+           })
+        }  
         const user = await usersService.getUserById(uid);
         if(!user) {
             CustomError.createError({

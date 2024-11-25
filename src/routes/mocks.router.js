@@ -6,6 +6,7 @@ const router = Router();
 router.get("/mockingpets", mockingController.mockingPets);
 router.get("/mockingusers", mockingController.mockingUsers);
 router.post("/generateData", mockingController.generateDataMock);
+router.post("/deleteData", mockingController.deleteAllData);
 
 
 export default router

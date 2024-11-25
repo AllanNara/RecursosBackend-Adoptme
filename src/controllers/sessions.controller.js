@@ -23,7 +23,7 @@ const register = async (req, res, next) => {
         name: "User creation error",
         cause: `User with email ${email} already exists`,
         message: "Error Trying to create User",
-        code: EErrors.BAD_REQUEST
+        code: EErrors.CONFLICT
       });
     }
     const hashedPassword = await createHash(password);
@@ -79,10 +79,26 @@ const login = async (req, res, next) => {
   }
 };
 
-const current = async (req, res) => {
-  const cookie = req.cookies["coderCookie"];
-  const user = jwt.verify(cookie, "tokenSecretJWT");
-  if (user) return res.send({ status: "success", payload: user });
+const logout = (req, res) => {
+  res.clearCookie("coderCookie").send({ status: "success", message: "Logged out" });
+}
+
+const current = async (req, res, next) => {
+  try {
+    const cookie = req.cookies["coderCookie"];
+    if(!cookie) {
+      CustomError.createError({
+        name: "Get current user error",
+        cause: "Missing cookie",
+        message: "Error trying to get current User",
+        code: EErrors.UNAUTHORIZED
+      })
+    }
+    const user = jwt.verify(cookie, "tokenSecretJWT");
+    if (user) return res.send({ status: "success", payload: user });
+  } catch (error) {
+    next(error)  
+  }
 };
 
 const unprotectedLogin = async (req, res, next) => {
@@ -131,6 +147,7 @@ const unprotectedCurrent = async (req, res) => {
 export default {
   current,
   login,
+  logout,
   register,
   current,
   unprotectedLogin,

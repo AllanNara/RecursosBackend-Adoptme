@@ -12,7 +12,7 @@ const schema = new mongoose.Schema({
         type:mongoose.SchemaTypes.ObjectId,
         ref:'Pets'
     }
-})
+}, { versionKey: false })
 
 const adoptionModel = mongoose.model(collection,schema);
 
