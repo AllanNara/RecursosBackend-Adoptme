@@ -1,4 +1,8 @@
+import CustomError from "../services/errors/CustomError.js";
+import EErrors from "../services/errors/enums.js";
+import { resourceNotFoundErrorInfo } from "../services/errors/info.js";
 import { adoptionsService, petsService, usersService } from "../services/index.js"
+import mongoose from "mongoose";
 
 const getAllAdoptions = async(req,res)=>{
     const result = await adoptionsService.getAll();
@@ -7,23 +11,63 @@ const getAllAdoptions = async(req,res)=>{
 
 const getAdoption = async(req,res)=>{
     const adoptionId = req.params.aid;
+    if(!adoptionId || mongoose.Types.ObjectId.isValid(adoptionId)) {
+       CustomError.createError({
+           name: "Adoption ID error",
+           cause: validateIdErrorInfo(adoptionId),
+           message: "Param UID is not valid",
+           code: EErrors.INVALID_PARAM
+       })
+    }   
     const adoption = await adoptionsService.getBy({_id:adoptionId})
-    if(!adoption) return res.status(404).send({status:"error",error:"Adoption not found"})
+    if(!adoption) {
+        CustomError.createError({
+            name: "Resource not found",
+            cause: resourceNotFoundErrorInfo("Adoption"),
+            message: "Adoption not found",
+            code: EErrors.RESOURCE_NOT_FOUND
+        })
+    }
     res.send({status:"success",payload:adoption})
 }
 
 const createAdoption = async(req,res)=>{
     const {uid,pid} = req.params;
-    const user = await usersService.getUserById(uid);
-    if(!user) return res.status(404).send({status:"error", error:"user Not found"});
-    const pet = await petsService.getBy({_id:pid});
-    if(!pet) return res.status(404).send({status:"error",error:"Pet not found"});
-    if(pet.adopted) return res.status(400).send({status:"error",error:"Pet is already adopted"});
-    user.pets.push(pet._id);
-    await usersService.update(user._id,{pets:user.pets})
-    await petsService.update(pet._id,{adopted:true,owner:user._id})
-    await adoptionsService.create({owner:user._id,pet:pet._id})
-    res.send({status:"success",message:"Pet adopted"})
+    try {
+        const user = await usersService.getUserById(uid);
+        if(!user) {
+            CustomError.createError({
+                name: "Resource not found",
+                cause: resourceNotFoundErrorInfo("User"),
+                message: "User not found",
+                code: EErrors.RESOURCE_NOT_FOUND
+            })
+        }
+        const pet = await petsService.getBy({_id:pid});
+        if(!pet) {
+            CustomError.createError({
+                name: "Resource not found",
+                cause: resourceNotFoundErrorInfo("Pet"),
+                message: "Pet not found",
+                code: EErrors.RESOURCE_NOT_FOUND
+            })
+        }
+        if(pet.adopted) {
+            CustomError.createError({
+                name: "Request error",
+                cause: "Pet already adopted",
+                message: "Pet already adopted",
+                code: EErrors.BAD_REQUEST
+            })
+        }
+        user.pets.push(pet._id);
+        await usersService.update(user._id,{pets:user.pets})
+        await petsService.update(pet._id,{adopted:true,owner:user._id})
+        await adoptionsService.create({owner:user._id,pet:pet._id})
+        res.send({status:"success",message:"Pet adopted"})
+    } catch (error) {
+        next(error)
+    }
 }
 
 export default {

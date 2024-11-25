@@ -1,6 +1,6 @@
-import EErrors from "../services/errors/enums";
+import EErrors from "../services/errors/enums.js";
 
-export default (error, req, res, next) => {
+export default function(error, req, res, next) {
     console.error(error.cause || error);
     const status = {
         [EErrors.ROUTING_ERROR]: 404,

@@ -3,7 +3,7 @@ import { createHash, passwordValidation } from "../utils/index.js";
 import jwt from "jsonwebtoken";
 import UserDTO from "../dto/User.dto.js";
 import CustomError from "../services/errors/CustomError.js";
-import { generateUserErrorInfo } from "../services/errors/info.js";
+import { generateUserErrorInfo, resourceNotFoundErrorInfo } from "../services/errors/info.js";
 import EErrors from "../services/errors/enums.js";
 
 const register = async (req, res) => {
@@ -11,17 +11,21 @@ const register = async (req, res) => {
     const { first_name, last_name, email, password } = req.body;
     if (!first_name || !last_name || !email || !password) {
       CustomError.createError({
-        name: "User creatin error",
+        name: "User creation error",
         cause: generateUserErrorInfo(req.body),
         message: "Error Trying to create User",
         code: EErrors.INVALID_TYPES_ERROR
       });
     }
     const exists = await usersService.getUserByEmail(email);
-    if (exists)
-      return res
-        .status(400)
-        .send({ status: "error", error: "User already exists" });
+    if (exists) {
+      CustomError.createError({
+        name: "User creation error",
+        cause: `User with email ${email} already exists`,
+        message: "Error Trying to create User",
+        code: EErrors.BAD_REQUEST
+      });
+    }
     const hashedPassword = await createHash(password);
     const user = {
       first_name,
@@ -36,20 +40,32 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password)
-    return res
-      .status(400)
-      .send({ status: "error", error: "Incomplete values" });
+  if (!email || !password) {
+    CustomError.createError({
+      name: "User login error",
+      cause: "Missing email or password",
+      message: "Error Trying to login User",
+      code: EErrors.INVALID_TYPES_ERROR
+    });
+  }
   const user = await usersService.getUserByEmail(email);
-  if (!user)
-    return res
-      .status(404)
-      .send({ status: "error", error: "User doesn't exist" });
+  if (!user) {
+    CustomError.createError({
+      name: "User login error",
+      cause: resourceNotFoundErrorInfo("User"),
+      message: "Error Trying to login User",
+      code: EErrors.RESOURCE_NOT_FOUND
+    });
+  }
   const isValidPassword = await passwordValidation(user, password);
-  if (!isValidPassword)
-    return res
-      .status(400)
-      .send({ status: "error", error: "Incorrect password" });
+  if (!isValidPassword) {
+    CustomError.createError({
+      name: "User login error",
+      cause: "Incorrect password",
+      message: "Error Trying to login User",
+      code: EErrors.BAD_REQUEST
+    });
+  }
   const userDto = UserDTO.getUserTokenFrom(user);
   const token = jwt.sign(userDto, "tokenSecretJWT", { expiresIn: "1h" });
   res
@@ -65,20 +81,32 @@ const current = async (req, res) => {
 
 const unprotectedLogin = async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password)
-    return res
-      .status(400)
-      .send({ status: "error", error: "Incomplete values" });
+  if (!email || !password) {
+    CustomError.createError({
+      name: "User login error",
+      cause: "Missing email or password",
+      message: "Error Trying to login User",
+      code: EErrors.INVALID_TYPES_ERROR
+    });
+  }
   const user = await usersService.getUserByEmail(email);
-  if (!user)
-    return res
-      .status(404)
-      .send({ status: "error", error: "User doesn't exist" });
+  if (!user) {
+    CustomError.createError({
+      name: "User login error",
+      cause: resourceNotFoundErrorInfo("User"),
+      message: "Error Trying to login User",
+      code: EErrors.RESOURCE_NOT_FOUND
+    });
+  }
   const isValidPassword = await passwordValidation(user, password);
-  if (!isValidPassword)
-    return res
-      .status(400)
-      .send({ status: "error", error: "Incorrect password" });
+  if (!isValidPassword) {
+    CustomError.createError({
+      name: "User login error",
+      cause: "Incorrect password",
+      message: "Error Trying to login User",
+      code: EErrors.BAD_REQUEST
+    });
+  }
   const token = jwt.sign(user, "tokenSecretJWT", { expiresIn: "1h" });
   res
     .cookie("unprotectedCookie", token, { maxAge: 3600000 })

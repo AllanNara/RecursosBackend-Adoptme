@@ -1,6 +1,8 @@
 import PetDTO from "../dto/Pet.dto.js";
 import { petsService } from "../services/index.js"
 import __dirname from "../utils/index.js";
+import CustomError from "../services/errors/CustomError.js"
+import { generatePetErrorInfo } from "../services/errors/info.js";
 
 const getAllPets = async(req,res)=>{
     const pets = await petsService.getAll();
@@ -9,7 +11,14 @@ const getAllPets = async(req,res)=>{
 
 const createPet = async(req,res)=> {
     const {name,specie,birthDate} = req.body;
-    if(!name||!specie||!birthDate) return res.status(400).send({status:"error",error:"Incomplete values"})
+    if(!name||!specie||!birthDate) {
+        CustomError.createError({
+        name: "Pet creation error",
+        cause: generatePetErrorInfo(req.body),
+        message: "Error Trying to create Pet",
+        code: EErrors.INVALID_TYPES_ERROR
+      });
+    }
     const pet = PetDTO.getPetInputFrom({name,specie,birthDate});
     const result = await petsService.create(pet);
     res.send({status:"success",payload:result})
@@ -31,7 +40,14 @@ const deletePet = async(req,res)=> {
 const createPetWithImage = async(req,res) =>{
     const file = req.file;
     const {name,specie,birthDate} = req.body;
-    if(!name||!specie||!birthDate) return res.status(400).send({status:"error",error:"Incomplete values"})
+    if(!name||!specie||!birthDate) {
+        CustomError.createError({
+        name: "Pet creation error",
+        cause: generatePetErrorInfo(req.body),
+        message: "Error Trying to create Pet",
+        code: EErrors.INVALID_TYPES_ERROR
+      });
+    }
     console.log(file);
     const pet = PetDTO.getPetInputFrom({
         name,

@@ -11,8 +11,8 @@ import adoptionsRouter from "./routes/adoption.router.js";
 import petsRouter from "./routes/pets.router.js";
 import sessionsRouter from "./routes/sessions.router.js";
 import usersRouter from "./routes/users.router.js";
+import mockingRouter from "./routes/mocking.router.js";
 import __dirname from "./utils/index.js";
-import errors from "./middlewares/errorHandle.js";
 import errorHandle from "./middlewares/errorHandle.js";
 
 dotenv.config();
@@ -35,12 +35,14 @@ const specs = swaggerJSDoc({
 mongoose.connect(URI);
 app.use(compression());
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser());
 app.use("/apidocs", swaggerUi.serve, swaggerUi.setup(specs))
 app.use("/api/users", usersRouter);
 app.use("/api/pets", petsRouter);
 app.use("/api/adoptions", adoptionsRouter);
 app.use("/api/sessions", sessionsRouter);
+app.use("/", mockingRouter);
 app.use(errorHandle);
 
 mongoose.connection.on("connected", () => {
