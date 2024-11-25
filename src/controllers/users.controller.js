@@ -1,4 +1,8 @@
+import CustomError from "../services/errors/CustomError.js";
+import EErrors from "../services/errors/enums.js";
+import { validateIdErrorInfo } from "../services/errors/info.js";
 import { usersService } from "../services/index.js"
+import mongoose from "mongoose";
 
 const getAllUsers = async(req,res)=>{
     const users = await usersService.getAll();
@@ -7,6 +11,14 @@ const getAllUsers = async(req,res)=>{
 
 const getUser = async(req,res)=> {
     const userId = req.params.uid;
+    if(!userId || mongoose.Types.ObjectId.isValid(userId)) {
+        CustomError.createError({
+            name: "User ID error",
+            cause: validateIdErrorInfo(),
+            message: "Param UID is not valid",
+            code: EErrors.INVALID_PARAM
+        })
+    }
     const user = await usersService.getUserById(userId);
     if(!user) return res.status(404).send({status:"error",error:"User not found"})
     res.send({status:"success",payload:user})
